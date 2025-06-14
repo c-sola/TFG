@@ -51,9 +51,9 @@ Este README resume de manera simple el trabajo, para más información sobre imp
 
 Searching for specific documents within large volumes of information can become a complex task if there are no suitable tools to facilitate their indexing, retrieval, and classification.
 
-This project provides a solution to this challenge through the design of a **modular architecture** capable of managing local document collections using **information retrieval techniques**. The proposed architecture covers all necessary stages: from the extraction and transformation of textual content to its structured representation through various indexing models.
+This project provides a solution to this challenge through the design of a modular architecture capable of managing local document collections using information retrieval techniques. The proposed architecture covers all necessary stages: from the extraction and transformation of textual content to its structured representation through various indexing models.
 
-In addition, the system incorporates **flexible storage mechanisms**, allowing efficient querying and preservation of the generated representations in a way that adapts to different needs. To validate the effectiveness of the developed solution, a practical case study has been defined, demonstrating how this architecture improves both access to information and the organization of processed documents.
+In addition, the system incorporates flexible storage mechanisms, allowing efficient querying and preservation of the generated representations in a way that adapts to different needs. To validate the effectiveness of the developed solution, a practical case study has been defined, demonstrating how this architecture improves both access to information and the organization of processed documents.
 
 ---
 
@@ -83,8 +83,8 @@ This project is submitted as part of the requirements for obtaining the Bachelor
 
 ## Contact
 
-For more information or suggestions, please contact: **solaruizclara@gmail.com**
+For more information or suggestions, please contact: **solaruizclara@gmail.com** :)
 
 ---
 
-This README provides a simple summary of the project. For more detailed information about the implementation and design choices, please refer to the main report of the Final Degree Project.
+This README provides a simple summary of the project. For more detailed information about the implementation and design choices, please refer to the main report of the dissertation.
