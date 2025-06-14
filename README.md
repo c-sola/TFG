@@ -1,4 +1,4 @@
-# README — Trabajo Fin de Grado
+# Trabajo Fin de Grado
 
 ## Sistema modular para la indexación de un conjunto de documentos locales: Aplicaci on de algoritmos de recuperación de información y análisis documental
 
