@@ -40,8 +40,6 @@ Este README resume de manera simple el trabajo, para más información sobre imp
 
 ---
 
-# Dissertation
-
 ## Modular System for the Indexing of a Local Document Collection: Application of Information Retrieval and Document Analysis Algorithms
 
 ### Clara Sola Ruiz  
