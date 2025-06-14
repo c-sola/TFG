@@ -1,4 +1,4 @@
-# Trabajo Fin de Grado
+# Trabajo de Fin de Grado
 
 ## Sistema modular para la indexación de un conjunto de documentos locales: Aplicación de algoritmos de recuperación de información y análisis documental
 
