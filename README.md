@@ -32,7 +32,7 @@ Este proyecto se presenta como parte de los requisitos para la obtención del t�
 
 ## Contacto
 
-Para más información o sugerencias, contactar a través de solaruizclara@gmail.com
+Para más información o sugerencias, contactar a través de solaruizclara@gmail.com :)
 
 ---
 
