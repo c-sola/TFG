@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Colección</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h2>Registrar nueva colección</h2>
+
+    <p class="explicacion-formulario">
+    ¡En esta sección puedes registrar una nueva colección de documentos para su posterior procesamiento!
+    Debes indicar la ruta local donde se encuentran los archivos, el idioma principal de los textos en inglés (por ejemplo, <code>spanish</code>, <code>english</code>...), 
+    y opcionalmente, un nombre personalizado que te ayude a identificarla.
+
+    <br><br>
+    Se permiten tanto archivos individuales como carpetas completas o archivos comprimidos en formato <code>.zip</code>.
+    Los documentos deben estar en formato <code>.txt</code>, <code>.pdf</code> o <code>.html</code>.
+    Puedes registrar desde un único archivo suelto hasta una colección completa organizada en una carpeta.
+    
+    </p>
+
+    <form method="post" action="{{ url_for('main.registrar_coleccion') }}">
+        <label>Ruta de la colección (carpeta local):</label><br>
+        <input type="text" name="collection_path" required><br><br>
+
+        <label>Nombre personalizado (opcional):</label><br>
+        <input type="text" name="collection_name"><br><br>
+
+        <label>Idioma principal (ej. 'spanish'):</label><br>
+        <input type="text" name="language" required><br><br>
+
+        <button type="submit">Registrar colección</button>
+    </form>
+
+
+    <p><a href="{{ url_for('main.index') }}">Volver al inicio</a></p>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Colección registrada</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="toast success" id="toast">
+        ✅ Colección registrada con éxito
+        <span class="toast-close" onclick="cerrarToast()">×</span>
+    </div>
+
+    <div class="card-extraccion">
+        <h2>¿Deseas extraer el texto de los documentos ahora?</h2>
+        <div class="botones-extraccion">
+            <form method="post" action="{{ url_for('main.extraer_texto') }}">
+                <input type="hidden" name="collection_id" value="{{ collection_id }}">
+                <button type="submit" class="btn-extraccion">Sí, extraer texto</button>
+            </form>
+
+            <form method="post" action="{{ url_for('main.saltar_extraccion') }}">
+                <input type="hidden" name="collection_id" value="{{ collection_id }}">
+                <button type="submit" class="btn-extraccion">No, omitir extracción</button>
+            </form>
+        </div>
+        <a href="{{ url_for('main.index') }}" class="link-volver">Volver al inicio</a>
+    </div>
+
+
+    <script>
+        window.onload = function () {
+            const toast = document.getElementById("toast");
+            toast.classList.add("show");
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 5000);
+        }
+
+        function cerrarToast() {
+            document.getElementById("toast").classList.remove("show");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Procesar colección con pipeline</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="toast-container">
+        {% for category, message in messages %}
+            <div class="toast {{ category }}">{{ message }}</div>
+        {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    <h2>⚙️ Procesar colección</h2>
+    {% if pipelines|length == 0 %}
+        <p style="color: red;"><strong>No hay pipelines disponibles. Crea uno antes de procesar una colección.</strong></p>
+    {% endif %}
+
+
+    <p class="explicacion-formulario">
+        ¡En esta sección puedes aplicar un pipeline de procesamiento a una colección previamente registrada! 
+        Debes seleccionar tanto la colección de documentos como el pipeline que deseas ejecutar sobre ella.
+
+        <br><br>
+        El pipeline aplicará, en orden, todos los pasos que hayas definido previamente sobre los documentos de la colección elegida. 
+        Este procesamiento generará una nueva versión "procesada" de la colección,  
+        que servirá como base para consultas y visualización de representaciones.
+
+        <br><br>
+        ⚠️ Ten en cuenta que una misma colección puede ser procesada con distintos pipelines,  
+        generando múltiples versiones procesadas con representaciones diferentes.
+    </p>
+
+    <!-- Formulario para recargar y mostrar pasos del pipeline -->
+    <form method="get" action="{{ url_for('main.form_procesar_pipeline') }}">
+        <label>Selecciona un pipeline:</label><br>
+        <select name="pipeline_id" onchange="this.form.submit()">
+            {% for pipe in pipelines %}
+                <option value="{{ pipe['_id'] }}" {% if pipe['_id'] == pipeline_seleccionado %}selected{% endif %}>
+                    {{ pipe['Name'] }} (ID: {{ pipe['_id'] }})
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <br>
+
+    <!-- Formulario para procesar la colección -->
+    <form method="post" action="{{ url_for('main.procesar_pipeline') }}">
+        <label>Selecciona una colección:</label><br>
+        <select name="collection_id" required>
+            {% for col in colecciones %}
+                <option value="{{ col['_id'] }}">
+                    {{ col['Name'] }} (ID: {{ col['_id'] }}) - {{ col['Language'] }}
+                </option>
+            {% endfor %}
+        </select><br><br>
+
+        <!-- pipeline_id oculto para que el backend lo reciba -->
+        {% if pipeline_seleccionado %}
+            <input type="hidden" name="pipeline_id" value="{{ pipeline_seleccionado }}">
+        {% elif pipelines|length > 0 %}
+            <input type="hidden" name="pipeline_id" value="{{ pipelines[0]['_id'] }}">
+        {% else %}
+            <input type="hidden" name="pipeline_id" value="">
+        {% endif %}
+
+        {% if pasos_pipeline %}
+            <h3>🧩 Configura el destino de cada paso</h3>
+            {% for paso in pasos_pipeline %}
+                <div style="margin-bottom: 10px;">
+                    <label><strong>{{ paso['Name'] }}</strong> ({{ paso['Method_Type'] }}):</label><br>
+                    <select name="almacenamiento_{{ loop.index0 }}">
+                        <option value="memory">🧠 En memoria</option>
+                        <option value="filesystem">💾 Fichero persistente</option>
+                        <option value="mongodb">🗄️ Base de datos (MongoDB)</option>
+                    </select>
+                    <input type="hidden" name="step_id_{{ loop.index0 }}" value="{{ paso['_id'] }}">
+                </div>
+            {% endfor %}
+            <input type="hidden" name="num_steps" value="{{ pasos_pipeline|length }}">
+        {% endif %}
+
+        <button type="submit" {% if pipelines|length == 0 %}disabled{% endif %}>
+            Procesar
+        </button>
+    </form>
+
+    <hr>
+    <h3>🗂️ Colecciones procesadas</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Colección</th>
+                <th>Pipeline</th>
+                <th>ID Colección Procesada</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for proc in procesadas %}
+                <tr>
+                    <td>{{ proc['Collection_Name'] or "Sin nombre" }}</td>
+                    <td>{{ proc['Pipeline_Name'] or "Sin nombre" }}</td>
+                    <td>{{ proc['_id'] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p><a href="{{ url_for('main.index') }}">Volver al inicio</a></p>
+
+    <script>
+  window.onload = function () {
+    const toasts = document.querySelectorAll(".toast");
+    toasts.forEach((toast) => {
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 5000);
+    });
+  };
+</script>
+
+</body>
+</html>

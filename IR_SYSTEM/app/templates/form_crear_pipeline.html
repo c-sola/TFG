@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Pipeline</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        function addStep() {
+            const pasosContainer = document.getElementById('pasos');
+            const index = pasosContainer.children.length;
+
+            const div = document.createElement('div');
+            div.className = 'paso';
+            div.innerHTML = `
+                <label>Paso ${index + 1}:</label>
+                <select name="method_order">
+                    <option value="">-- Selecciona un método --</option>
+                    {% for tipo, lista in metodos_agrupados.items() %}
+                        <optgroup label="{{ tipo|capitalize }}">
+                        {% for m in lista %}
+                            <option value="{{ m['_id'] }}">{{ m['Name'] }} ({{ m['Input_Format'] }} → {{ m['Output_Format'] }})</option>
+                        {% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+                <button type="button" onclick="this.parentElement.remove(); renumerar()">❌ Quitar</button>
+                <br><br>
+            `;
+            pasosContainer.appendChild(div);
+        }
+
+        function renumerar() {
+            const pasos = document.querySelectorAll('#pasos .paso label');
+            pasos.forEach((label, i) => {
+                label.textContent = `Paso ${i + 1}:`;
+            });
+        }
+    </script>
+</head>
+<body>
+    <h2>Crear nuevo pipeline</h2>
+
+    <p class="explicacion-formulario">
+        En esta sección puedes crear un nuevo pipeline de procesamiento definiendo los pasos que se aplicarán a las colecciones de documentos.  
+        Debes añadir uno o varios métodos en el orden en que deseas que se ejecuten (por ejemplo, minúsculas, tokenización, eliminación de stopwords, generación de índice, etc.).
+
+        <br><br>
+        Cada pipeline puede reutilizarse para procesar diferentes colecciones, y su configuración define cómo se representarán los documentos y qué estructuras se generarán.
+        Ten en cuenta, que ciertos pasos necesitan unas entradas y salidas determinadas.
+
+        <br><br>
+        También puedes eliminar un pipeline ya existente. ⚠️ Si lo haces, se eliminarán automáticamente todas las versiones procesadas (y representaciones) que hayan sido generadas a partir de él.
+    </p>
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div id="flashes">
+        {% for category, message in messages %}
+            <div class="toast show {{ category }}">{{ message }}</div>
+        {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    <form method="post" action="{{ url_for('main.crear_pipeline') }}">
+        <label>Nombre del pipeline:</label><br>
+        <input type="text" name="name" required><br><br>
+
+        <label>Descripción:</label><br>
+        <input type="text" name="desc"><br><br>
+
+        <h3>Pasos del pipeline:</h3>
+        <div id="pasos"></div>
+
+        <button type="button" onclick="addStep()">➕ Añadir paso</button><br><br>
+        <button type="submit">✅ Crear pipeline</button>
+    </form>
+
+    <hr><br>
+
+    <h3>📋 Pipelines existentes</h3>
+    <div class="pipeline-lista">
+    {% for p in pipelines %}
+        <div class="pipeline-card">
+            <div class="pipeline-info">
+                <strong>{{ p['Name'] }}</strong><br>
+                <small>{{ p['Description'] or "Sin descripción" }}</small>
+
+                {% if p['Pasos'] %}
+                    <ul class="pipeline-steps">
+                        {% for paso in p['Pasos'] %}
+                            <li>
+                                Paso {{ paso['Order'] + 1 }}: {{ paso['Name'] }} ({{ paso['Input_Format'] }} → {{ paso['Output_Format'] }})
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p><em>Este pipeline no tiene pasos definidos.</em></p>
+                {% endif %}
+            </div>
+            <form method="post" action="{{ url_for('main.eliminar_pipeline', pipeline_id=p['_id']) }}" class="form-eliminar">
+                <button type="submit" class="btn-eliminar" onclick="return confirm('¿Eliminar este pipeline?')">🗑️</button>
+            </form>
+        </div>
+    {% endfor %}
+    </div>
+
+    <p><a href="{{ url_for('main.index') }}">Volver al inicio</a></p>
+</body>
+</html>

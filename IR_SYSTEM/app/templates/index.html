@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Gestión de Colecciones</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<script>
+  window.onload = function () {
+    const toast = document.querySelector(".toast");
+    if (toast) {
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 5000);
+    }
+  };
+</script>
+<body>
+    <main class="contenido-principal">
+        <h1>Bienvenid@s al Sistema de Indexación de Documentos</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="toast {{ category }}">{{ message }}
+                    <span class="toast-close" onclick="this.parentElement.classList.remove('show')">×</span>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <p>Desde aquí puedes gestionar tus colecciones, crear pipelines, lanzar procesamientos y realizar una consulta</p>
+
+       <h2>📂 Colecciones registradas</h2>
+        {% if colecciones %}
+            <div class="colecciones-lista">
+                {% for col in colecciones %}
+                    <div class="coleccion-card">
+                        <h3>{{ col['Name'] }}</h3>
+                        <p><strong>ID:</strong> {{ col['_id'] }}</p>
+                        <p><strong>Idioma:</strong> {{ col['Language'] }}</p>
+                        {% if col['Path'] %}
+                            <p class="coleccion-path">
+                                <strong>Ruta:</strong> 
+                                <a href="file://{{ col['Path'] }}" target="_blank">{{ col['Path'] }}</a>
+                            </p>
+                        {% endif %}
+
+                        <p><strong>Estado:</strong> 
+                        {% if col['State'] %}
+                            <span class="estado estado-{{ col['State'] | lower }}">{{ col['State'] }}</span>
+                        {% else %}
+                            <span class="estado estado-desconocido">Desconocido</span>
+                        {% endif %}
+                        </p>
+
+                        <div class="acciones-coleccion">
+                            {% if col['State'] == "registrada" %}
+                            <form method="post" action="{{ url_for('main.extraer_texto') }}">
+                                <input type="hidden" name="collection_id" value="{{ col['_id'] }}">
+                                <button class="btn-secundario">📄 Extraer texto</button>
+                            </form>
+                            {% endif %}
+
+                          <form action="{{ url_for('main.eliminar_coleccion', collection_id=col['_id']) }}" method="post" class="form-eliminar" onsubmit="return confirmarEliminacion(this);">
+                            <label style="font-size: 0.9em;">
+                                <input type="checkbox" name="eliminar_disco" value="si" onchange="actualizarMensaje(this)">
+                                Eliminar también las representaciones guardadas en disco
+                            </label><br>
+                            <button class="btn-eliminar" type="submit">🗑️ Eliminar</button>
+                        </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No hay colecciones registradas aún.</p>
+        {% endif %}
+
+
+        <h2>🚀 Acciones disponibles</h2>
+        <div class="acciones-grid">
+            <a class="accion-card" href="{{ url_for('main.form_registrar_coleccion') }}">➕ Registrar nueva colección</a>
+            <a class="accion-card" href="{{ url_for('main.form_crear_pipeline') }}">🛠️ Crear o Eliminar un pipeline</a>
+            <a class="accion-card" href="{{ url_for('main.form_procesar_pipeline') }}">⚙️ Procesar colección con pipeline</a>
+            <a class="accion-card" href="{{ url_for('main.ver_representaciones') }}">📊 Ver representaciones generadas</a>
+            <a class="accion-card" href="{{ url_for('main.buscar') }}">🔍 Ejecutar consulta</a>
+            <a class="accion-card" href="https://TU-LINK-AQUI" target="_blank">📄 Accede al TFG para más información</a>
+        </div>
+
+    </main>
+
+   <footer class="footer">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo UGR" class="logo-footer">
+        <p><strong>Trabajo de Fin de Grado</strong> – Sistema modular para la indexación de un conjunto de documentos locales</p>
+        <p>Clara Sola Ruiz – Universidad de Granada, 2025</p>
+    </footer>
+
+    <script>
+    function confirmarEliminacion(form) {
+        const checkbox = form.querySelector('input[name="eliminar_disco"]');
+        if (checkbox.checked) {
+            return confirm("¿Estás segura de que deseas eliminar esta colección, sus documentos y TODAS las representaciones, incluyendo las guardadas en disco?");
+        } else {
+            return confirm("¿Estás segura de que deseas eliminar esta colección, sus documentos y las representaciones almacenadas en la base de datos? Las representaciones que hayas guardado en disco permanecerán en la carpeta 'saved_structures'.");
+        }
+    }
+</script>
+
+</body>
+</html>

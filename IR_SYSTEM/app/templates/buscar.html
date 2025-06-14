@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>🔎 Buscar documentos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h2>🔍 Buscar en colección procesada</h2>
+
+    <p class="explicacion-formulario">
+        En esta sección puedes realizar búsquedas sobre colecciones de documentos que hayan sido previamente procesadas.  
+        Debes seleccionar la colección procesada que deseas consultar, introducir tu búsqueda en forma de texto,  
+        y elegir el comparador que se utilizará (por ejemplo, comparación booleana, similitud de coseno, etc.).
+
+        <br><br>
+        El sistema generará una representación compatible de la consulta y la comparará con los documentos procesados  
+        para mostrar los resultados más relevantes ordenados por puntuación.
+
+        <br><br>
+        ⚠️ Solo es posible buscar en colecciones que ya hayan sido procesadas mediante un pipeline válido,  
+        y la búsqueda será coherente con los métodos de representación aplicados en ese pipeline.
+    </p>
+
+    <form method="post">
+        <label for="collection_id">Colección procesada:</label>
+        <select name="collection_id" required>
+            {% for col in colecciones %}
+                <option value="{{ col['_id'] }}" {% if selected_id == col['_id']|string %}selected{% endif %}>
+                    {{ col['_id'] }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <br><br>
+
+        <label for="consulta">Consulta:</label>
+        <input type="text" name="consulta" value="{{ consulta }}" required>
+
+        <br><br>
+
+        <label for="comparador">Comparador:</label>
+        <select name="comparador">
+            <option value="coseno" {% if comparador == "coseno" %}selected{% endif %}>Coseno</option>
+            <option value="booleano" {% if comparador == "booleano" %}selected{% endif %}>Booleano</option>
+        </select>
+
+        <br><br>
+        <button type="submit">Buscar</button>
+    </form>
+
+    <hr>
+
+    {% if resultados %}
+        <h3>📄 Resultados</h3>
+        <div class="resultados-container">
+            {% for r in resultados %}
+                <div class="resultado-item">
+                    <p><strong>Documento:</strong> <span>{{ r.doc_id }}</span></p>
+                    <p><strong>Ruta:</strong> <span>{{ r.path }}</span></p>
+                    <p><strong>Score:</strong> <span>{{ "%.4f"|format(r.score) }}</span></p>
+                </div>
+            {% endfor %}
+        </div>
+    {% elif selected_id %}
+        <p>⚠️ No se encontraron resultados o no hay documentos representados.</p>
+    {% endif %}
+
+
+    <p><a href="{{ url_for('main.index') }}">Volver al inicio</a></p>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Representaciones</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        function logSubmit() {
+            console.log("Form enviado");
+        }
+    </script>
+</head>
+<body>
+    <h2>📊 Representaciones generadas</h2>
+
+    <p class="explicacion-formulario">
+        En esta sección puedes explorar las representaciones generadas a partir del procesamiento aplicado a las colecciones.
+        Primero, selecciona una colección procesada para visualizar los resultados de los métodos aplicados en su pipeline.
+
+        <br><br>
+        Se mostrarán tanto las representaciones individuales de los documentos
+        como la representación global de la colección.
+
+        <br><br>
+        Las representaciones que hayan sido almacenadas de forma persistente en el sistema de archivos también pueden visualizarse desde aquí.
+        Estos archivos se encuentran en la carpeta <code>saved_structures</code> del proyecto y están disponibles mediante enlaces directos.
+
+        <br><br>
+        Además, si las representaciones han sido almacenadas en la base de datos MongoDB, podrás ver su contenido directamente
+        y descargarlas en formato <code>JSON</code> para su análisis o reutilización.
+    </p>
+
+    <form method="get" action="{{ url_for('main.ver_representaciones') }}">
+        <label>Selecciona una colección procesada:</label>
+        <select name="id">
+            {% for pc in processed_collections %}
+                <option value="{{ pc['_id'] }}" {% if selected_id == pc['_id']|string %}selected{% endif %}>
+                    {{ pc['_id'] }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="submit">🔍 Ver representaciones</button>
+    </form>
+
+    {% if doc_reps_grouped %}
+        <h3>🧾 Representaciones documentales</h3>
+        {% for doc_id, reps in doc_reps_grouped.items() %}
+            <div class="paso">
+                <h4>🗂 Documento: {{ doc_id }}</h4>
+                <ul>
+                    {% for rep in reps %}
+                        <li>
+                            <strong>Tipo:</strong> {{ rep["Representation_Type"] }}<br>
+                            {% if rep["Representation_Type_Info"]["Output_Location_Type"]|lower == "filesystem" %}
+                                📂 <a href="{{ url_for('main.descargar_archivo', ruta=rep['Representation_Type_Info']['Output_Destination'].split('saved_structures/')[-1]) }}"
+                                    target="_blank">Ver archivo</a>
+                            {% elif rep["Content"] %}
+                                <pre>{{ rep["Content"] | tojson(indent=2) }}</pre>
+                                💾 <a href="{{ url_for('main.descargar_desde_mongodb', tipo='document', doc_id=rep['Document_ID']) }}">Descargar JSON</a>
+                            {% else %}
+                                <em>Contenido no disponible o almacenado fuera de MongoDB.</em>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No hay representaciones documentales para esta colección.</p>
+    {% endif %}
+
+    <hr>
+
+  <h3>🌐 Representación global</h3>
+    {% if col_rep %}
+        <div class="paso">
+            <strong>Tipo:</strong> {{ col_rep["Representation_Type"] }}<br>
+
+            {% if col_rep["Representation_Type_Info"]["Output_Location_Type"]|lower == "filesystem" %}
+                📂 <a href="{{ url_for('main.descargar_archivo', ruta=col_rep['Representation_Type_Info']['Output_Destination'].split('saved_structures/')[-1]) }}"
+                    target="_blank">Ver archivo</a><br>
+            {% elif col_rep["Content"] %}
+                <pre>{{ col_rep["Content"] | tojson(indent=2) }}</pre>
+                💾 <a href="{{ url_for('main.descargar_desde_mongodb', tipo='global', doc_id=selected_id) }}">Descargar JSON</a><br>
+            {% else %}
+                <em>Contenido no disponible o almacenado fuera de MongoDB.</em>
+            {% endif %}
+        </div>
+    {% endif %}
+
+
+
+    <p><a href="{{ url_for('main.index') }}">Volver al inicio</a></p>
+</body>
+</html>
